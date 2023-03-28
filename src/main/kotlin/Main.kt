@@ -1,4 +1,5 @@
 import java.io.File
+import kotlin.math.roundToInt
 
 fun main() {
 
@@ -13,10 +14,23 @@ fun main() {
         dictionary.add(Word(lineOfWordsList[0], lineOfWordsList[1], lineOfWordsList[2].toInt()))
 
     }
+    val learnedWords = dictionary.filter { it.correctAnswersCount >= 3 }.size
 
-    println("Количество правильных ответов: ${dictionary.sumOf { it.correctAnswersCount }}")
-    println(dictionary)
+    while (true) {
+        println("Меню: 1 – Учить слова, 2 – Статистика, 0 – Выход")
 
+        when (readln().toInt()) {
+            1 -> println("Выбрали команду 1")
+            2 -> println(
+                "Список содержит $learnedWords выученных слов." +
+                        "\nВыучено $learnedWords из ${dictionary.size} слов | " +
+                        "${(((learnedWords).toDouble() / dictionary.size) * 100).roundToInt()}%"
+            )
+
+            0 -> break
+            else -> println("Такой команды нет, выберите нужную команду.")
+        }
+    }
 }
 
 class Word(
@@ -24,7 +38,5 @@ class Word(
     val translate: String,
     val correctAnswersCount: Int = 0,
 ) {
-    override fun toString(): String {
-        return "Слово: $original, перевод: $translate, правильных ответов: $correctAnswersCount"
-    }
+
 }

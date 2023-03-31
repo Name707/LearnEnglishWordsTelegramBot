@@ -9,6 +9,11 @@ fun main() {
     val dictionary: MutableList<Word> = mutableListOf()
     val wordsToLinesList: List<String> = wordsFile.readLines()
 
+    fun saveDictionary() {
+        wordsFile.writeText("")
+        for (word in dictionary) wordsFile.appendText(("${word.original}|${word.translate}|${word.correctAnswersCount}\n"))
+    }
+
     for (line in wordsToLinesList) {
         val lineOfWordsList = line.split("|")
         dictionary.add(Word(lineOfWordsList[0], lineOfWordsList[1], lineOfWordsList[2].toInt()))
@@ -23,17 +28,23 @@ fun main() {
             1 -> do {
                 val unlearnedWordsList = dictionary.filter { it.correctAnswersCount < 3 }
                 val randomFourUnlearnedWords = unlearnedWordsList.shuffled().take(4)
+                val randomWordForLearn = randomFourUnlearnedWords.randomOrNull()
 
                 if (unlearnedWordsList.isEmpty()) {
                     println("Вы выучили все слова")
                     break
                 } else {
-                    println("Выберите правильный перевод слова \"${randomFourUnlearnedWords.random().original}\":\n" +
-                            randomFourUnlearnedWords.map { it.translate }
-                    )
-                    val userAnswer = readln()
-                }
+                    println("${randomWordForLearn?.original}")
+                    println(randomFourUnlearnedWords
+                        .mapIndexed { index, word -> "${index + 1} - ${word.translate}" }
+                        .joinToString(", ", postfix = ", 0 - Меню"))
 
+                    val userAnswer = readln().toInt()
+                    if (userAnswer != 0 && randomFourUnlearnedWords[userAnswer - 1].translate == randomWordForLearn?.translate) {
+                        randomWordForLearn.correctAnswersCount++
+                        saveDictionary()
+                    } else if (userAnswer == 0) break
+                }
             } while (unlearnedWordsList.isNotEmpty())
 
             2 -> println(
@@ -51,7 +62,5 @@ fun main() {
 class Word(
     val original: String,
     val translate: String,
-    val correctAnswersCount: Int = 0,
-) {
-
-}
+    var correctAnswersCount: Int = 0,
+)

@@ -34,16 +34,16 @@ fun main() {
                     println("Вы выучили все слова")
                     break
                 } else {
-                    println("Введите цифру правильного варианта перевода слова \"${randomWordForLearn?.original}\". Цифра \"0\" для выхода в меню:\n" +
-                            randomFourUnlearnedWords.map { it.translate }
-                    )
-                    val userAnswer = readln().toInt()
+                    println("${randomWordForLearn?.original}")
+                    println(randomFourUnlearnedWords
+                        .mapIndexed { index, word -> "${index + 1} - ${word.translate}" }
+                        .joinToString(", ", postfix = ", 0 - Меню"))
 
-                    if (userAnswer != 0 && (randomFourUnlearnedWords[userAnswer - 1].translate == randomWordForLearn?.translate)) {
-                        dictionary.map { if (it.translate == randomWordForLearn.translate) it.correctAnswersCount++ }
+                    val userAnswer = readln().toInt()
+                    if (userAnswer != 0 && randomFourUnlearnedWords[userAnswer - 1].translate == randomWordForLearn?.translate) {
+                        randomWordForLearn.correctAnswersCount++
                         saveDictionary()
                     } else if (userAnswer == 0) break
-
                 }
             } while (unlearnedWordsList.isNotEmpty())
 
@@ -63,6 +63,4 @@ class Word(
     val original: String,
     val translate: String,
     var correctAnswersCount: Int = 0,
-) {
-
-}
+)

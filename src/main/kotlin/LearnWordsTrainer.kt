@@ -21,11 +21,11 @@ class LearnWordsTrainer(
     fun getStatistics(): Statistics {
         val learnedWords = dictionary.filter { it.correctAnswersCount >= 3 }.size
         val allWords = dictionary.size
-        val percentageOfLearnedWords = dictionary.size * 100
+        val percentageOfLearnedWords = learnedWords * 100 / allWords
         return Statistics(
             learnedWords,
             allWords,
-            percentageOfLearnedWords
+            percentageOfLearnedWords,
         )
     }
 

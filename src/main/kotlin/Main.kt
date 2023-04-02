@@ -42,8 +42,8 @@ fun main() {
             2 -> {
                 val statistics = trainer.getStatistics()
                 println(
-                    "Список содержит ${statistics.learnedWords} выученных слов." + "\nВыучено $statistics.learnedWords из ${statistics.allWords} слов | " +
-                            "${(((statistics.learnedWords).toDouble() / statistics.percentageOfLearnedWords).roundToInt())}%"
+                    "Список содержит ${statistics.learnedWords} выученных слов." + "\nВыучено ${statistics.learnedWords} из ${statistics.allWords} слов | " +
+                            "${statistics.percentageOfLearnedWords}%"
                 )
             }
 

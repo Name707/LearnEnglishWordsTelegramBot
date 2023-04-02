@@ -1,4 +1,5 @@
 import java.io.File
+import java.lang.IllegalStateException
 
 data class Statistics(
     val learnedWords: Int,
@@ -10,7 +11,10 @@ data class Question(
     val correctAnswer: Word,
 )
 
-class LearnWordsTrainer {
+class LearnWordsTrainer(
+    private val learnedAnswerCount: Int = 3,
+    private val countOfQuestionWords: Int = 4,
+) {
     private var question: Question? = null
     private val dictionary = loadDictionary()
 
@@ -26,9 +30,16 @@ class LearnWordsTrainer {
     }
 
     fun getNextQuestion(): Question? {
-        val unlearnedWordsList = dictionary.filter { it.correctAnswersCount < 3 }
+        val unlearnedWordsList = dictionary.filter { it.correctAnswersCount < learnedAnswerCount }
         if (unlearnedWordsList.isEmpty()) return null
-        val randomFourUnlearnedWords = unlearnedWordsList.shuffled().take(4)
+        val randomFourUnlearnedWords = if (unlearnedWordsList.size < countOfQuestionWords) {
+            val learnedList = dictionary.filter { it.correctAnswersCount >= learnedAnswerCount }.shuffled()
+            unlearnedWordsList.shuffled()
+                .take(countOfQuestionWords) + learnedList.take(countOfQuestionWords - unlearnedWordsList.size)
+        } else {
+            unlearnedWordsList.shuffled().take(countOfQuestionWords)
+        }.shuffled()
+
         val randomWordForLearn = randomFourUnlearnedWords.random()
         question = Question(
             variants = randomFourUnlearnedWords, correctAnswer = randomWordForLearn,
@@ -51,15 +62,19 @@ class LearnWordsTrainer {
     }
 
     private fun loadDictionary(): List<Word> {
-        val dictionary: MutableList<Word> = mutableListOf()
-        val wordsFile: File = File("words.txt")
-        wordsFile.createNewFile()
-        val wordsToLinesList: List<String> = wordsFile.readLines()
-        for (line in wordsToLinesList) {
-            val lineOfWordsList = line.split("|")
-            dictionary.add(Word(lineOfWordsList[0], lineOfWordsList[1], lineOfWordsList[2].toInt()))
+        try {
+            val dictionary: MutableList<Word> = mutableListOf()
+            val wordsFile: File = File("words.txt")
+            wordsFile.createNewFile()
+            val wordsToLinesList: List<String> = wordsFile.readLines()
+            for (line in wordsToLinesList) {
+                val lineOfWordsList = line.split("|")
+                dictionary.add(Word(lineOfWordsList[0], lineOfWordsList[1], lineOfWordsList[2].toInt()))
+            }
+            return dictionary
+        } catch (e: IndexOutOfBoundsException) {
+            throw IllegalStateException("Некорректный файл")
         }
-        return dictionary
     }
 
     private fun saveDictionary(words: List<Word>) {

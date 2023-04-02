@@ -10,11 +10,17 @@ fun Question.asConsoleString(): String {
     val variants = this.variants
         .mapIndexed { index, word -> "${index + 1} - ${word.translate}" }
         .joinToString("\n")
-    return this.correctAnswer.original + "\n" + variants + "\n 0 выйти в меню"
+    return this.correctAnswer.original + "\n" + variants + "\n0 выйти в меню"
 }
 
 fun main() {
-    val trainer = LearnWordsTrainer()
+    val trainer = try {
+        LearnWordsTrainer(3, 4)
+    } catch (e: Exception) {
+        println("Невозможно загрузить словарь")
+        return
+    }
+
     while (true) {
         println("Меню: 1 – Учить слова, 2 – Статистика, 0 – Выход")
         when (readln().toInt()) {
